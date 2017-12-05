@@ -2,14 +2,14 @@ name := "compiler-benchmark"
 
 version := "1.0-SNAPSHOT"
 
-def scala211 = "2.11.11"
-scalaVersion in ThisBuild := scala211
+def scala212 = "2.12.4"
+scalaVersion in ThisBuild := scala212
 
 commands += Command.command("testAll") { s =>
   "test:compile" ::
     "compilation/test" ::
     "hot -psource=scalap -wi 1 -i 1 -f1" ::
-    s"++$scala211" ::
+    s"++$scala212" ::
     "micro/jmh:run -w1 -f1" ::
     s
 }
@@ -49,7 +49,7 @@ lazy val compilation = addJmh(project).settings(
   libraryDependencies += {
     scalaOrganization.value % "scala-compiler" % scalaVersion.value
   },
-  crossScalaVersions := List(scala211),
+  crossScalaVersions := List(scala212),
   unmanagedSourceDirectories.in(Compile) += sourceDirectory.in(Compile).value / "scalac",
   mainClass in (Jmh, run) := Some("scala.bench.ScalacBenchmarkRunner"),
   libraryDependencies += "com.novocode" % "junit-interface" % "0.11" % Test,
