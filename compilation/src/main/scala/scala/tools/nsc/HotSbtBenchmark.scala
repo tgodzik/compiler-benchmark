@@ -15,80 +15,60 @@ import org.openjdk.jmh.annotations._
 @Fork(value = 3)
 class HotSbtBenchmark {
   @Param(value = Array())
-  var source: String = _
+  var project: String = _
+
+  @Param(value = Array())
+  var projectName: String = _
 
   @Param(value = Array(""))
   var extraArgs: String = _
 
-  @Param(value = Array("0.13.15"))
-  var sbtVersion: String = _
-
-  @Param(value = Array(""))
-  var extraBuild: String = _
-
-  @Param(value= Array("compile"))
-  var compileCmd: String = _
-
-  // This parameter is set by ScalacBenchmarkRunner / UploadingRunner based on the Scala version.
-  // When running the benchmark directly the "latest" symlink is used.
-  @Param(value = Array("latest"))
-  var corpusVersion: String = _
-
   var sbtProcess: Process = _
   var inputRedirect: ProcessBuilder.Redirect = _
   var outputRedirect: ProcessBuilder.Redirect = _
-  var tempDir: Path = _
-  var scalaHome: Path = _
+  var path: Path = _
+  var cleanClassesPath: Path = _
   var processOutputReader: BufferedReader = _
   var processInputReader: BufferedWriter = _
   var output= new java.lang.StringBuilder()
 
-  def compileRawSetting = if (sbtVersion.startsWith("1.")) "" else
-    """
-      |val compileRaw = taskKey[Unit]("Compile directly, bypassing the incremental compiler")
-      |
-      |def addCompileRaw = compileRaw := {
-      |    val compiler = new sbt.compiler.RawCompiler(scalaInstance.value, sbt.ClasspathOptions.auto, streams.value.log)
-      |    classDirectory.value.mkdirs()
-      |    compiler.apply(sources.value, classDirectory.value +: dependencyClasspath.value.map(_.data), classDirectory.value, scalacOptions.value)
-      |  }
-      |
-      |inConfig(Compile)(List(addCompileRaw))
-    """.stripMargin
-
-  def buildDef =
-    s"""
-       |scalaHome := Some(file("${scalaHome.toAbsolutePath.toString}"))
+  private def cleanClassesPlugin: String =
+    s"""package bloop
+       |import sbt._
+       |import Keys._
        |
-       |val cleanClasses = taskKey[Unit]("clean the classes directory")
+       |object CleanClassesPlugin extends AutoPlugin {
+       |  override def trigger = allRequirements
+       |  override def requires = plugins.JvmPlugin
        |
-       |cleanClasses := IO.delete((classDirectory in Compile).value)
+       |  object autoImport {
+       |    lazy val cleanClasses = taskKey[Unit]("Clean all classes in all projects")
+       |    lazy val cleanClassesTask = taskKey[Unit]("Clean all classes")
+       |  }
        |
-       |scalaSource in Compile := file("${corpusSourcePath.toAbsolutePath.toString}")
+       |  import autoImport._
        |
-       |libraryDependencies += "org.scala-lang" % "scala-compiler" % scalaVersion.value
-       |libraryDependencies += "org.scala-lang" % "scala-reflect" % scalaVersion.value
+       |  override def globalSettings: Seq[Setting[_]] = Seq(
+       |    cleanClasses := Def.taskDyn {
+       |      cleanClassesTask.all(ScopeFilter(inAnyProject))
+       |    }.value
+       |  )
        |
-       |traceLevel := Int.MaxValue
-       |traceLevel in runMain := Int.MaxValue
-       |
-       |$compileRawSetting
-       |
-       |$extraBuild
-       |// TODO support .java sources
-    """.stripMargin
+       |  override def projectSettings: Seq[Setting[_]] = Seq(
+       |    cleanClassesTask := {
+       |      IO.delete(classDirectory.in(Compile).value)
+       |    }
+       |  )
+       |}""".stripMargin
 
   @Setup(Level.Trial) def spawn(): Unit = {
-    tempDir = Files.createTempDirectory("sbt-")
-    scalaHome = Files.createTempDirectory("scalaHome-")
-    initDepsClasspath()
-    Files.createDirectory(tempDir.resolve("project"))
-    Files.write(tempDir.resolve("project/build.properties"), java.util.Arrays.asList("sbt.version=" + sbtVersion))
-    Files.write(tempDir.resolve("build.sbt"), buildDef.getBytes("UTF-8"))
+    path = Paths.get(s"../frontend/src/test/resources/projects/$project")
+    cleanClassesPath = path.resolve("project").resolve("CleanClassesPlugin.scala")
+    Files.write(cleanClassesPath, cleanClassesPlugin.getBytes("UTF-8"))
     val sbtLaucherPath = System.getProperty("sbt.launcher")
     if (sbtLaucherPath == null) sys.error("System property -Dsbt.launcher absent")
     val builder = new ProcessBuilder(sys.props("java.home") + "/bin/java", "-Xms2G", "-Xmx2G", "-Dsbt.log.format=false", "-jar", sbtLaucherPath)
-    builder.directory(tempDir.toFile)
+    builder.directory(path.toFile)
     inputRedirect = builder.redirectInput()
     outputRedirect = builder.redirectOutput()
     sbtProcess = builder.start()
@@ -99,7 +79,7 @@ class HotSbtBenchmark {
 
   @Benchmark
   def compile(): Unit = {
-    issue(s";cleanClasses;$compileCmd")
+    issue(s";cleanClasses;$projectName/compile")
     awaitPrompt()
   }
 
@@ -127,38 +107,9 @@ class HotSbtBenchmark {
 
   }
 
-  private def corpusSourcePath = Paths.get(s"../corpus/$source/$corpusVersion")
-
-  def initDepsClasspath(): Unit = {
-    val libDir = tempDir.resolve("lib")
-    Files.createDirectories(libDir)
-    for (depFile <- BenchmarkUtils.initDeps(corpusSourcePath)) {
-      val libDirFile = libDir.resolve(depFile.getFileName)
-      Files.copy(depFile, libDir)
-    }
-
-    val scalaHomeLibDir = scalaHome.resolve("lib")
-    Files.createDirectories(scalaHomeLibDir)
-    for (elem <- sys.props("java.class.path").split(File.pathSeparatorChar)) {
-      val jarFile = Paths.get(elem)
-      var name = jarFile.getFileName.toString
-      if (name.startsWith("scala") && name.endsWith(".jar")) {
-        if (name.startsWith("scala-library"))
-          name = "scala-library.jar"
-        else if (name.startsWith("scala-reflect"))
-          name = "scala-reflect.jar"
-        else if (name.startsWith("scala-compiler"))
-          name = "scala-compiler.jar"
-        Files.copy(jarFile, scalaHomeLibDir.resolve(name))
-      }
-    }
-
-  }
-
   @TearDown(Level.Trial) def terminate(): Unit = {
     processOutputReader.close()
     sbtProcess.destroyForcibly()
-    BenchmarkUtils.deleteRecursive(tempDir)
-    BenchmarkUtils.deleteRecursive(scalaHome)
+    Files.delete(cleanClassesPath)
   }
 }
