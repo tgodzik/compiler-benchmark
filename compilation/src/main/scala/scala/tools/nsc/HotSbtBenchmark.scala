@@ -49,6 +49,7 @@ class HotSbtBenchmark {
        |  import autoImport._
        |
        |  override def globalSettings: Seq[Setting[_]] = Seq(
+       |    shellPrompt := (_ => "> "),
        |    cleanClasses := Def.taskDyn {
        |      cleanClassesTask.all(ScopeFilter(inAnyProject))
        |    }.value
