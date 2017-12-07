@@ -63,7 +63,7 @@ public class UploadingOutputFormat extends DelegatingOutputFormat {
         InfluxDB influxDB = Database.connectDb();
         try (Repository repo = GitFactory.openGit()) {
             BatchPoints batchPoints = BatchPoints
-                    .database("scala_benchmark")
+                    .database("bloop_benchmark")
                     .retentionPolicy("autogen")
                     .consistency(InfluxDB.ConsistencyLevel.ALL)
                     .build();
@@ -91,14 +91,14 @@ public class UploadingOutputFormat extends DelegatingOutputFormat {
             }
             pointBuilder.addField("extendedInfo", result.getPrimaryResult().extendedInfo());
 
-            String scalaVersion = System.getProperty("scalaVersion");
-            String scalaRef = System.getProperty("scalaRef");
+            String bloopVersion = System.getProperty("bloopVersion");
+            String bloopRef = System.getProperty("bloopRef");
             List<String> inputArguments = ManagementFactory.getRuntimeMXBean().getInputArguments();
-            if (scalaRef == null) {
-                throw new RuntimeException("Please provide -DscalaRef=...");
+            if (bloopRef == null) {
+                throw new RuntimeException("Please provide -DbloopRef=...");
             }
             try {
-                String branch = gitResult.branchOfRef(scalaRef);
+                String branch = gitResult.branchOfRef(bloopRef);
                 pointBuilder.tag("branch", branch);
             } catch (IllegalArgumentException iea ){
                 pointBuilder.tag("branch", "<none>");
@@ -106,14 +106,14 @@ public class UploadingOutputFormat extends DelegatingOutputFormat {
             pointBuilder.tag("hostId", getHostId());
             pointBuilder.addField("javaVersion", System.getProperty("java.runtime.version"));
             pointBuilder.addField("inputArguments", inputArguments.stream().collect(Collectors.joining(" ")));
-            pointBuilder.tag("scalaVersion", scalaVersion);
+            pointBuilder.tag("bloopVersion", bloopVersion);
 
 
             try (RevWalk walk = new RevWalk(repo)) {
-                RevCommit revCommit = walk.parseCommit(repo.resolve(scalaRef));
+                RevCommit revCommit = walk.parseCommit(repo.resolve(bloopRef));
                 pointBuilder.tag("scalaSha", revCommit.getName());
                 pointBuilder.addField("commitShortMessage", sanitize(revCommit.getShortMessage()));
-                logJSON(result, benchmarkName, scalaRef, revCommit);
+                logJSON(result, benchmarkName, bloopRef, revCommit);
                 pointBuilder.time(GitWalker.adjustCommitTime(revCommit), TimeUnit.MILLISECONDS);
                 batchPoints.point(pointBuilder.build());
                 influxDB.write(batchPoints);
@@ -126,12 +126,12 @@ public class UploadingOutputFormat extends DelegatingOutputFormat {
         }
     }
 
-    private void logJSON(BenchmarkResult result, String benchmarkName, String scalaRef, RevCommit revCommit) throws IOException {
+    private void logJSON(BenchmarkResult result, String benchmarkName, String bloopRef, RevCommit revCommit) throws IOException {
         String timestamp = DateFormatUtils.format(new Date(), "yyyyMMdd_kkmmss");
-        Path path = Paths.get(timestamp + "-" + scalaRef + "-" + benchmarkName + ".json");
+        Path path = Paths.get(timestamp + "-" + bloopRef + "-" + benchmarkName + ".json");
         java.nio.file.Files.write(path, toJSON(result));
-        System.out.println("Uploading points to benchmark database for " + scalaRef + "/" + revCommit.getName() + ", " + revCommit.getCommitTime() + "s");
-        System.out.println("Data in JSON format: " + path);
+        System.out.println("Uploading points to benchmark database for " + bloopRef + "/" + revCommit.getName() + ", " + revCommit.getCommitTime() + "s");
+        System.out.println("Data in JSON format: " + path.toAbsolutePath());
     }
 
     private static String getHostId() throws Exception {

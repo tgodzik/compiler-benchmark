@@ -25,16 +25,16 @@ public class GitWalker {
         // git log --topo-order --first-parent --oneline 2.13.x --not 2.12.x | tail -1
         // TODO find this with JGit.
         BatchPoints batchPoints = BatchPoints
-                .database("scala_benchmark")
+                .database("bloop_benchmark")
                 .retentionPolicy("autogen")
                 .consistency(InfluxDB.ConsistencyLevel.ALL)
                 .build();
-        createPoints("2.13.x", "fc1aea6712", batchPoints, repo, branchesMap);
-        createPoints("2.12.x", "132a0587ab", batchPoints, repo, branchesMap);
-        createPoints("v2.12.0", "05016d9035", batchPoints, repo, branchesMap);
-        createPoints("2.11.x", "7ac15a1210", batchPoints, repo, branchesMap);
-        createPoints("2.10.x", "cc672b023e", batchPoints, repo, branchesMap);
-        createPoints("2.9.x", "33e1dac4e4", batchPoints, repo, branchesMap);
+        /* createPoints("2.13.x", "fc1aea6712", batchPoints, repo, branchesMap); */
+        /* createPoints("2.12.x", "132a0587ab", batchPoints, repo, branchesMap); */
+        /* createPoints("v2.12.0", "05016d9035", batchPoints, repo, branchesMap); */
+        /* createPoints("2.11.x", "7ac15a1210", batchPoints, repo, branchesMap); */
+        /* createPoints("2.10.x", "cc672b023e", batchPoints, repo, branchesMap); */
+        /* createPoints("2.9.x", "33e1dac4e4", batchPoints, repo, branchesMap); */
         return new GitWalkerResult(batchPoints, branchesMap, repo);
     }
 

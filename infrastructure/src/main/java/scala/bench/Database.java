@@ -27,12 +27,6 @@ public class Database {
 
         OkHttpClient.Builder client = new OkHttpClient.Builder();
 
-        // workaround https://github.com/influxdata/influxdb-java/issues/268
-        client.addNetworkInterceptor(chain -> {
-            HttpUrl.Builder fixedUrl = chain.request().url().newBuilder().encodedPath("/influx/" + chain.request().url().encodedPath().replaceFirst("/influxdb", ""));
-            return chain.proceed(chain.request().newBuilder().url(fixedUrl.build()).build());
-        });
-
         client.authenticator((route, response) -> {
             String credential = Credentials.basic(influxUser, influxPassword);
             return response.request().newBuilder()

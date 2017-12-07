@@ -11,7 +11,12 @@ import java.nio.file.Paths;
 public class GitFactory {
     public static Repository openGit() {
         Config conf = ConfigFactory.load();
-        String gitLocalDir = conf.getString("git.localdir");
+        String gitLocalDir = System.getProperty("git.localdir");
+
+        if (gitLocalDir == null) {
+            throw new RuntimeException("Please provide -Dgit.localdir=...");
+        }
+
         try {
             return new FileRepositoryBuilder().setGitDir(Paths.get(gitLocalDir).resolve(".git").toFile())
                     .readEnvironment() // Do we need this?
