@@ -8,7 +8,6 @@ scalaVersion in ThisBuild := scala212
 commands += Command.command("testAll") { s =>
   "test:compile" ::
     "compilation/test" ::
-    "hot -psource=scalap -wi 1 -i 1 -f1" ::
     s"++$scala212" ::
     "micro/jmh:run -w1 -f1" ::
     s
@@ -83,10 +82,6 @@ lazy val addJavaOptions = javaOptions ++= {
     "-Dgit.localdir=."
   )
 }
-
-addCommandAlias("hot", "compilation/jmh:run HotScalacBenchmark -foe true")
-
-addCommandAlias("cold", "compilation/jmh:run ColdScalacBenchmark -foe true")
 
 def addJmh(project: Project): Project = {
   // IntelliJ SBT project import doesn't like sbt-jmh's default setup, which results the prod and test
