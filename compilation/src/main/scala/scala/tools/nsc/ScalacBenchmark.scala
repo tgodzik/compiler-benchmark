@@ -11,15 +11,10 @@ import org.openjdk.jmh.annotations._
 import scala.tools.benchmark.BenchmarkDriver
 
 trait BaseBenchmarkDriver {
-  def source: String
   def extraArgs: String
   def extras: List[String] = if (extraArgs != null && extraArgs != "") extraArgs.split('|').toList else Nil
-  def allArgs: List[String] = compilerArgs ++ extras ++ sourceFiles
-  def corpusVersion: String
-  def depsClasspath: String
+  def allArgs: List[String] = extras ++ sourceFiles
   def tempDir: File
-  def corpusSourcePath: Path
-  def compilerArgs: List[String]
   def sourceFiles: List[String]
   def isResident: Boolean = false
 }
@@ -27,15 +22,13 @@ trait BaseBenchmarkDriver {
 @State(Scope.Benchmark)
 class ScalacBenchmark extends BenchmarkDriver {
   @Param(value = Array())
-  var source: String = _
+  var project: String = _
+
+  @Param(value = Array())
+  var projectName: String = _
 
   @Param(value = Array(""))
   var extraArgs: String = _
-
-  // This parameter is set by ScalacBenchmarkRunner / UploadingRunner based on the Scala version.
-  // When running the benchmark directly the "latest" symlink is used.
-  @Param(value = Array("latest"))
-  var corpusVersion: String = _
 
   @Param(value = Array("false"))
   var resident: Boolean = false
@@ -44,19 +37,16 @@ class ScalacBenchmark extends BenchmarkDriver {
 
   var depsClasspath: String = _
 
-  def compilerArgs: List[String] = if (source.startsWith("@")) source :: Nil else Nil
-
-  def sourceFiles: List[String] =
-    if (source.startsWith("@")) Nil
-    else {
-      import scala.collection.JavaConverters._
-      val allFiles = Files.walk(findSourceDir, FileVisitOption.FOLLOW_LINKS).collect(Collectors.toList[Path]).asScala.toList
-      val files = allFiles.filter(f => {
-        val name = f.getFileName.toString
-        name.endsWith(".scala") || name.endsWith(".java")
-      }).map(_.toAbsolutePath.normalize.toString)
-      files
-    }
+  def sourceFiles: List[String] = {
+    import scala.collection.JavaConverters._
+    val path = Paths.get(s"../frontend/src/test/resources/projects/$project/$projectName")
+    val allFiles = Files.walk(path, FileVisitOption.FOLLOW_LINKS).collect(Collectors.toList[Path]).asScala.toList
+    val files = allFiles.filter(f => {
+      val name = f.getFileName.toString
+      name.endsWith(".scala") || name.endsWith(".java")
+    }).map(_.toAbsolutePath.normalize.toString)
+    files
+}
 
   var tempDir: File = null
 
@@ -71,25 +61,6 @@ class ScalacBenchmark extends BenchmarkDriver {
     BenchmarkUtils.deleteRecursive(tempDir.toPath)
   }
 
-  def corpusSourcePath: Path = Paths.get(s"../corpus/$source/$corpusVersion")
-
-  @Setup(Level.Trial) def initDepsClasspath(): Unit = {
-    val classPath = BenchmarkUtils.initDeps(corpusSourcePath)
-    if (classPath.nonEmpty) {
-      val res = new StringBuilder()
-      for (depFile <- classPath) {
-        if (res.nonEmpty) res.append(File.pathSeparator)
-        res.append(depFile.toAbsolutePath.normalize.toString)
-      }
-      depsClasspath = res.toString
-    }
-  }
-
-  private def findSourceDir: Path = {
-    val path = corpusSourcePath
-    if (Files.exists(path)) path
-    else Paths.get(source)
-  }
 }
 
 // JMH-independent entry point to run the code in the benchmark, for debugging or
@@ -97,8 +68,9 @@ class ScalacBenchmark extends BenchmarkDriver {
 object ScalacBenchmarkStandalone {
   def main(args: Array[String]): Unit = {
     val bench = new ScalacBenchmark
-    bench.source = args(0)
-    val iterations = args(1).toInt
+    bench.project = args(0)
+    bench.projectName = args(1)
+    val iterations = args(2).toInt
     bench.initTemp()
     var i = 0
     while (i < iterations) {
