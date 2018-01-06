@@ -49,7 +49,6 @@ class HotSbtBenchmark {
        |  import autoImport._
        |
        |  override def globalSettings: Seq[Setting[_]] = Seq(
-       |    shellPrompt := (_ => "> "),
        |    cleanClasses := Def.taskDyn {
        |      cleanClassesTask.all(ScopeFilter(inAnyProject))
        |    }.value
@@ -75,6 +74,7 @@ class HotSbtBenchmark {
     sbtProcess = builder.start()
     processOutputReader = new BufferedReader(new InputStreamReader(sbtProcess.getInputStream))
     processInputReader = new BufferedWriter(new OutputStreamWriter(sbtProcess.getOutputStream))
+    issue("""set every shellPrompt := (_ => "> ")""")
     awaitPrompt()
   }
 
