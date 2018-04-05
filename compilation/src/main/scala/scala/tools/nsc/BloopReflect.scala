@@ -5,7 +5,7 @@ import java.nio.file.Path
 object BloopReflect {
 
   /**
-   * Returns the `.bloop-config` directory for project `name`.
+   * Returns the bloop configuration directory for project `name`.
    *
    * This is done through reflection, because otherwise we would need to add a dependency
    * from this project to Bloop's tests. We just need to be careful to call it only once

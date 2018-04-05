@@ -9,6 +9,7 @@ val typesafeConfig = "com.typesafe" % "config" % "1.3.2"
 val metaconfigCore = "com.geirsson" %% "metaconfig-core" % "0.6.0"
 val metaconfigConfig = "com.geirsson" %% "metaconfig-typesafe-config" % "0.6.0"
 val metaconfigDocs = "com.geirsson" %% "metaconfig-docs" % "0.6.0"
+val circeDerivation = "io.circe" %% "circe-derivation" % "0.9.0-M3"
 
 // Let's add our sbt plugin to the sbt too ;)
 unmanagedSourceDirectories in Compile ++= {
@@ -19,6 +20,7 @@ unmanagedSourceDirectories in Compile ++= {
     val pluginMainDir = integrationsMainDir / "sbt-bloop" / "src" / "main"
     List(
       baseDir / "config" / "src" / "main" / "scala",
+      baseDir / "config" / "src" / "main" / s"scala-${Keys.scalaBinaryVersion.value}",
       pluginMainDir / "scala",
       pluginMainDir / s"scala-sbt-${Keys.sbtBinaryVersion.value}"
     )
@@ -30,4 +32,5 @@ libraryDependencies ++= List(
   metaconfigCore,
   metaconfigDocs,
   metaconfigConfig,
+  circeDerivation
 )
