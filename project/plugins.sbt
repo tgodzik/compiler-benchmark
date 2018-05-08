@@ -5,6 +5,9 @@ logLevel := Level.Warn
 addSbtPlugin("pl.project13.scala" % "sbt-jmh" % "0.2.27")
 addSbtPlugin("com.lucidchart" % "sbt-scalafmt" % "1.14")
 
+// Enable this for the bloop build to work
+addSbtPlugin("io.get-coursier" % "sbt-coursier" % "1.0.1")
+
 val typesafeConfig = "com.typesafe" % "config" % "1.3.2"
 val metaconfigCore = "com.geirsson" %% "metaconfig-core" % "0.6.0"
 val metaconfigConfig = "com.geirsson" %% "metaconfig-typesafe-config" % "0.6.0"
