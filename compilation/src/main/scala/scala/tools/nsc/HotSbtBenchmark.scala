@@ -32,6 +32,8 @@ class HotSbtBenchmark {
   var processInputReader: BufferedWriter = _
   var output= new java.lang.StringBuilder()
 
+  var sbtCommand: String = _
+
   private def cleanClassesPlugin: String =
     s"""package bloop
        |import sbt._
@@ -62,13 +64,24 @@ class HotSbtBenchmark {
        |  )
        |}""".stripMargin
 
+  def findMaxHeap(project: String): String = project match {
+    case "lichess" | "akka" => "-Xmx3G"
+    case _ => "-Xmx2G"
+  }
+
   @Setup(Level.Trial) def spawn(): Unit = {
+    sbtCommand = {
+      if (projectName.endsWith("-test")) s"${projectName.stripSuffix("-test")}/test:compile"
+      else s"${projectName}/compile"
+    }
+
     path = BloopReflect.getBloopConfigDir(project).getParent.getParent
     cleanClassesPath = path.resolve("project").resolve("CleanClassesPlugin.scala")
     Files.write(cleanClassesPath, cleanClassesPlugin.getBytes("UTF-8"))
     val sbtLaucherPath = System.getProperty("sbt.launcher")
     if (sbtLaucherPath == null) sys.error("System property -Dsbt.launcher absent")
-    val builder = new ProcessBuilder(sys.props("java.home") + "/bin/java", "-Xms2G", "-Xmx2G", "-XX:ReservedCodeCacheSize=256m", "-Dsbt.log.format=false", "-jar", sbtLaucherPath)
+    val maxHeap = findMaxHeap(project)
+    val builder = new ProcessBuilder(sys.props("java.home") + "/bin/java", "-Xms2G", maxHeap, "-XX:ReservedCodeCacheSize=128m", "-Dsbt.log.format=false", "-jar", sbtLaucherPath)
     builder.directory(path.toFile)
     inputRedirect = builder.redirectInput()
     outputRedirect = builder.redirectOutput()
@@ -81,7 +94,7 @@ class HotSbtBenchmark {
 
   @Benchmark
   def compile(): Unit = {
-    issue(s";cleanClasses;$projectName/compile")
+    issue(s";cleanClasses;$sbtCommand")
     awaitPrompt()
   }
 
