@@ -57,6 +57,7 @@ class HotSbtBenchmark {
        |  override def projectSettings: Seq[Setting[_]] = Seq(
        |    cleanClassesTask := {
        |      IO.delete(classDirectory.in(Compile).value)
+       |      IO.delete(classDirectory.in(Test).value)
        |    }
        |  )
        |}""".stripMargin
@@ -67,7 +68,7 @@ class HotSbtBenchmark {
     Files.write(cleanClassesPath, cleanClassesPlugin.getBytes("UTF-8"))
     val sbtLaucherPath = System.getProperty("sbt.launcher")
     if (sbtLaucherPath == null) sys.error("System property -Dsbt.launcher absent")
-    val builder = new ProcessBuilder(sys.props("java.home") + "/bin/java", "-Xms2G", "-Xmx2G", "-Dsbt.log.format=false", "-jar", sbtLaucherPath)
+    val builder = new ProcessBuilder(sys.props("java.home") + "/bin/java", "-Xms2G", "-Xmx2G", "-XX:ReservedCodeCacheSize=256m", "-Dsbt.log.format=false", "-jar", sbtLaucherPath)
     builder.directory(path.toFile)
     inputRedirect = builder.redirectInput()
     outputRedirect = builder.redirectOutput()
