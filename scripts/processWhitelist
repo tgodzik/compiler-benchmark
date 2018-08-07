@@ -8,24 +8,32 @@ bioset                    # kernel block IO, https://askubuntu.com/questions/673
 cpuhp                     # CPU hotplug, https://www.kernel.org/doc/html/latest/core-api/cpu_hotplug.html
 cron                      # systemctl, stopped by benv
 crypto                    # crypto for kernel modules, https://www.quora.com/What-is-the-purpose-of-crypto-Linux-Kernel-Thread
+ecryptfs-kthrea
+charger_manager
 dbus-daemon               # systemctl, stopped by benv. D-Bus, used by desktop applications, https://en.wikipedia.org/wiki/D-Bus
 devfreq_wq                # not sure, "monitors every registered device", https://github.com/atomic-penguin/linux/blob/master/drivers/devfreq/devfreq.c
+deferwq
 dhclient                  # dhcp client, keeps running as long as the interface is configured using dhcp. not sure if it could be disabled temporarily
 ext4-rsv-conver           # not sure
 ipv6_addrconf             # ipv6, could probably be disabled
-irq/326-mei_me            # an interrupt handler, it seems to stick around, no idea..
+irq/326-mei_me_            # an interrupt handler, it seems to stick around, no idea..
+irq/30-mei_me_
 irqbalance                # systemctl, stopped by benv. balance irq handlers across cpus
+fsnotify_mark_
 java_java_-jar_slave.jar  # oh jenkins
 jbd2                      # ext4 journal
 kauditd                   # not sure, "kernel audit events" (https://wiki.gentoo.org/wiki/SELinux/Tutorials/The_security_context_of_a_process)
 kblockd                   # block device io
 kcompactd0                # memory compaction
 kdevtmpfs                 # not sure
+kvm-irqfd-clean_
 khugepaged                # memory management, large pages
 khungtaskd                # scheduled every 120 seconds and check status of all process
 kintegrityd               # not sure
+kpsmoused_
 kipmi0                    # not sure, https://access.redhat.com/solutions/21322
 ksmd                      # merges identical memory pages (https://www.kernel.org/doc/Documentation/vm/ksm.txt)
+md
 ksoftirqd                 # per-cpu process, handles interrupts when already handling an interrupt
 kswapd0                   # manages virtual memory
 kthreadd                  # root for creating kernel threads
@@ -36,6 +44,7 @@ migration                 # distributes workload across CPU cores
 netns                     # handle network namespaces (logically copies of the network stack)
 oom_reaper                # out of memory handler
 ps_ps_-e_-o_comm,args     # myself
+perf_
 rcu_bh                    # rcu is a thread synchronization mechanism, https://lwn.net/Articles/518953/
 rcu_sched                 #
 rsyslogd                  # systemctl, stopped by benv. syslog
@@ -52,3 +61,4 @@ ttm_swap                  # swap gpu memory
 vmstat                    # virtual memory stats, not sure why this is running
 watchdog                  # detects problems, per cpu
 writeback                 # write to disk buffer
+zsh
