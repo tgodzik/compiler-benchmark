@@ -62,3 +62,4 @@ vmstat                    # virtual memory stats, not sure why this is running
 watchdog                  # detects problems, per cpu
 writeback                 # write to disk buffer
 zsh
+(sd-pam)_
