@@ -360,6 +360,16 @@ case $mode in
     [[ $optIrqAffinity -eq 1 ]] && setupIrqAffinity
     ;;
 
+  check)
+    echo "Checking machine configuration"
+    checkKernelRelease
+    checkNoHyperThreading
+    checkNoTurboBoost
+    checkNoNuma
+    checkNoPstate
+    checkRunningProcesses
+    ;;
+
   reset)
     echo "Resetting benchmarking environment"
     configureTurboBoost enable
