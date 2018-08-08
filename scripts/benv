@@ -346,10 +346,9 @@ case $mode in
     checkKernelRelease
     checkNoPstate
     checkRunningProcesses
-    # checkNoHyperThreading
-    # checkNoNuma
 
-    # We don't want to check that NUMA is disable since we'll benchmark parallel compilation
+    # We don't want to check these since we need them for benchmarking parallel compilation
+    # checkNoHyperThreading
     # checkNoNuma
 
     echo "Setting benchmarking environment"
@@ -359,6 +358,8 @@ case $mode in
     [[ $optIrqAffinity -eq 1 ]] && setupIrqAffinity
     # Don't run the cpu shield because we want to benchmark parallel compilation
     # [[ $optShield      -eq 1 ]] && setupShield
+
+    exit 0
     ;;
 
   reset)
