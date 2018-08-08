@@ -345,8 +345,9 @@ case $mode in
     echo "Checking machine configuration"
     checkKernelRelease
     checkNoPstate
-    # checkNoHyperThreading
     checkRunningProcesses
+    # checkNoHyperThreading
+    # checkNoNuma
 
     # We don't want to check that NUMA is disable since we'll benchmark parallel compilation
     # checkNoNuma
@@ -355,19 +356,9 @@ case $mode in
     [[ $optFrequency   -eq 1 ]] && setFrequency
     [[ $optTurboBoost  -eq 1 ]] && configureTurboBoost disable
     [[ $optServices    -eq 1 ]] && stopServices
+    [[ $optIrqAffinity -eq 1 ]] && setupIrqAffinity
     # Don't run the cpu shield because we want to benchmark parallel compilation
     # [[ $optShield      -eq 1 ]] && setupShield
-    [[ $optIrqAffinity -eq 1 ]] && setupIrqAffinity
-    ;;
-
-  check)
-    echo "Checking machine configuration"
-    checkKernelRelease
-    checkNoHyperThreading
-    checkNoTurboBoost
-    checkNoNuma
-    checkNoPstate
-    checkRunningProcesses
     ;;
 
   reset)
