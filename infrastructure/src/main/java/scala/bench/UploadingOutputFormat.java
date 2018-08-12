@@ -1,6 +1,23 @@
 package scala.bench;
 
+import static scala.bench.GitWalker.sanitize;
+
 import com.google.common.base.Throwables;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.PrintStream;
+import java.lang.management.ManagementFactory;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.Enumeration;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.time.DateFormatUtils;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
@@ -15,20 +32,6 @@ import org.openjdk.jmh.results.format.ResultFormat;
 import org.openjdk.jmh.results.format.ResultFormatFactory;
 import org.openjdk.jmh.results.format.ResultFormatType;
 import org.openjdk.jmh.runner.format.OutputFormat;
-
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.PrintStream;
-import java.lang.management.ManagementFactory;
-import java.net.InetAddress;
-import java.net.NetworkInterface;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.*;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
-
-import static scala.bench.GitWalker.sanitize;
 
 public class UploadingOutputFormat extends DelegatingOutputFormat {
 
@@ -70,6 +73,13 @@ public class UploadingOutputFormat extends DelegatingOutputFormat {
             Point.Builder pointBuilder = Point.measurement("result");
             BenchmarkParams params = result.getParams();
             Collection<String> paramsKeys = params.getParamsKeys();
+
+            String jvm = result.getParams().getJvm();
+            if (!jvm.isEmpty()) pointBuilder.tag("jvm", jvm);
+
+            Collection<String> jvmArgs = result.getParams().getJvmArgs();
+            if (!jvmArgs.isEmpty()) pointBuilder.tag("jvmArgs", jvmArgs.stream().collect(Collectors.joining(" ")));
+
             pointBuilder.tag("label", result.getPrimaryResult().getLabel());
             String benchmarkName = result.getParams().getBenchmark().replace("scala.tools.nsc.", "");
             pointBuilder.tag("benchmark", benchmarkName);
