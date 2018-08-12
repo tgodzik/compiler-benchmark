@@ -11,10 +11,10 @@ object BloopReflect {
    * from this project to Bloop's tests. We just need to be careful to call it only once
    * per fork.
    */
-  def getBloopConfigDir(name: String): Path = {
+  def getConfigDirForBenchmark(name: String): Path = {
     val classLoader = getClass.getClassLoader
     val projectHelpers = classLoader.loadClass("bloop.tasks.TestUtil")
-    val method = projectHelpers.getMethod("getBloopConfigDir", classOf[String])
+    val method = projectHelpers.getMethod("getConfigDirForBenchmark", classOf[String])
     method.invoke(null, name).asInstanceOf[Path]
   }
 
