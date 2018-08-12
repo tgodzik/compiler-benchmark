@@ -57,7 +57,7 @@ class ScalacBenchmark extends BenchmarkDriver {
     tempFile.delete()
     tempFile.mkdir()
     tempDir = tempFile
-    base = BloopReflect.getBloopConfigDir(project).getParent.resolve(projectName)
+    base = BloopReflect.getBloopConfigDir(project).getParent.getParent.resolve(projectName)
   }
   @TearDown(Level.Trial) def clearTemp(): Unit = {
     BenchmarkUtils.deleteRecursive(tempDir.toPath)
