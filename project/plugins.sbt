@@ -2,7 +2,7 @@
 logLevel := Level.Warn
 
 // sbt-jmh plugin - pulls in JMH dependencies too
-addSbtPlugin("pl.project13.scala" % "sbt-jmh" % "0.2.27")
+addSbtPlugin("pl.project13.scala" % "sbt-jmh" % "0.3.3")
 addSbtPlugin("com.lucidchart" % "sbt-scalafmt" % "1.14")
 
 // Enable this for the bloop build to work
