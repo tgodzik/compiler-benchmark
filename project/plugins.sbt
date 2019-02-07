@@ -13,6 +13,8 @@ val metaconfigCore = "com.geirsson" %% "metaconfig-core" % "0.6.0"
 val metaconfigConfig = "com.geirsson" %% "metaconfig-typesafe-config" % "0.6.0"
 val metaconfigDocs = "com.geirsson" %% "metaconfig-docs" % "0.6.0"
 val circeDerivation = "io.circe" %% "circe-derivation" % "0.9.0-M3"
+// required for java9+
+val javaxActivation = "com.sun.activation" % "javax.activation" % "1.2.0"
 
 // Let's add our sbt plugin to the sbt too ;)
 unmanagedSourceDirectories in Compile ++= {
@@ -35,5 +37,6 @@ libraryDependencies ++= List(
   metaconfigCore,
   metaconfigDocs,
   metaconfigConfig,
-  circeDerivation
+  circeDerivation,
+  javaxActivation
 )
