@@ -14,6 +14,7 @@ dbus-daemon               # systemctl, stopped by benv. D-Bus, used by desktop a
 devfreq_wq                # not sure, "monitors every registered device", https://github.com/atomic-penguin/linux/blob/master/drivers/devfreq/devfreq.c
 deferwq
 dhclient                  # dhcp client, keeps running as long as the interface is configured using dhcp. not sure if it could be disabled temporarily
+dhcpd
 ext4-rsv-conver           # not sure
 ipv6_addrconf             # ipv6, could probably be disabled
 irq/326-mei_me_            # an interrupt handler, it seems to stick around, no idea..
