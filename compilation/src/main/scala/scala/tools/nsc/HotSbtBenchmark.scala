@@ -30,7 +30,7 @@ class HotSbtBenchmark {
   var cleanClassesPath: Path = _
   var processOutputReader: BufferedReader = _
   var processInputReader: BufferedWriter = _
-  var output= new java.lang.StringBuilder()
+  var output = new java.lang.StringBuilder()
 
   var sbtCommand: String = _
 
@@ -65,8 +65,8 @@ class HotSbtBenchmark {
        |}""".stripMargin
 
   def findMaxHeap(project: String): String = project match {
-    case "lichess" | "akka" => "-Xmx3G"
-    case _ => "-Xmx2G"
+    case "lichess" | "akka" => "-Xmx4G"
+    case _ => "-Xmx3G"
   }
 
   @Setup(Level.Trial) def spawn(): Unit = {
@@ -81,7 +81,15 @@ class HotSbtBenchmark {
     val sbtLaucherPath = System.getProperty("sbt.launcher")
     if (sbtLaucherPath == null) sys.error("System property -Dsbt.launcher absent")
     val maxHeap = findMaxHeap(project)
-    val builder = new ProcessBuilder(sys.props("java.home") + "/bin/java", "-Xms2G", maxHeap, "-XX:ReservedCodeCacheSize=128m", "-Dsbt.log.format=false", "-jar", sbtLaucherPath)
+    val builder = new ProcessBuilder(
+      sys.props("java.home") + "/bin/java",
+      "-Xms2G",
+      maxHeap,
+      "-XX:ReservedCodeCacheSize=128m",
+      "-Dsbt.log.format=false",
+      "-jar",
+      sbtLaucherPath
+    )
     builder.directory(path.toFile)
     inputRedirect = builder.redirectInput()
     outputRedirect = builder.redirectOutput()
@@ -107,7 +115,7 @@ class HotSbtBenchmark {
     output.setLength(0)
     var line = ""
     val buffer = new Array[Char](128)
-    var read : Int = -1
+    var read: Int = -1
     while (true) {
       read = processOutputReader.read(buffer)
       if (read == -1) sys.error("EOF: " + output.toString)
