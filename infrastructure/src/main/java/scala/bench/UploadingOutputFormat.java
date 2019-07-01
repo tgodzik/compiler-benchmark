@@ -91,13 +91,13 @@ public class UploadingOutputFormat extends DelegatingOutputFormat {
             }
             pointBuilder.addField("score", result.getPrimaryResult().getScore());
             pointBuilder.addField("sampleCount", result.getPrimaryResult().getSampleCount());
-            pointBuilder.addField("scoreError", result.getPrimaryResult().getScoreError());
+            //pointBuilder.addField("scoreError", result.getPrimaryResult().getScoreError());
             pointBuilder.addField("scoreUnit", result.getPrimaryResult().getScoreUnit());
 
             double[] scoreConfidence = result.getPrimaryResult().getScoreConfidence();
             if (scoreConfidence.length == 2) {
-                pointBuilder.addField("scoreConfidenceLower", scoreConfidence[0]);
-                pointBuilder.addField("scoreConfidenceUpper", scoreConfidence[1]);
+                //pointBuilder.addField("scoreConfidenceLower", scoreConfidence[0]);
+                //pointBuilder.addField("scoreConfidenceUpper", scoreConfidence[1]);
             }
             pointBuilder.addField("extendedInfo", result.getPrimaryResult().extendedInfo());
 
