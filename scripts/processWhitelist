@@ -56,6 +56,7 @@ sshd                      # jenkins
 ssh                       # reverse tunnel
 sudo_sudo_./scripts/benv  # myself
 sudo_sudo_su_-            # myself
+su_su_-                   # myself
 systemd                   #
 systemd-journal           # Journal Service
 systemd-logind            # login service
