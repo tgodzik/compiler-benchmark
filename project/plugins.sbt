@@ -15,7 +15,6 @@ val metaconfigDocs = "com.geirsson" %% "metaconfig-docs" % "0.6.0"
 val circeDerivation = "io.circe" %% "circe-derivation" % "0.9.0-M3"
 // required for java9+
 val javaxActivation = "com.sun.activation" % "javax.activation" % "1.2.0"
-val bsp4jClient = "ch.epfl.scala" % "bsp4j" % "2.0.0-M4"
 
 // Let's add our sbt plugin to the sbt too ;)
 unmanagedSourceDirectories in Compile ++= {
@@ -24,11 +23,9 @@ unmanagedSourceDirectories in Compile ++= {
   if (!integrationsMainDir.exists()) Nil
   else {
     val pluginMainDir = integrationsMainDir / "sbt-bloop" / "src" / "main"
-    val clientMainDir = integrationsMainDir / "bsp4j-client" / "src" / "main"
     List(
       baseDir / "config" / "src" / "main" / "scala",
       baseDir / "config" / "src" / "main" / "scala-2.11-12",
-      clientMainDir / "scala",
       pluginMainDir / "scala",
       pluginMainDir / s"scala-sbt-${Keys.sbtBinaryVersion.value}"
     )
@@ -36,7 +33,6 @@ unmanagedSourceDirectories in Compile ++= {
 }
 
 libraryDependencies ++= List(
-  bsp4jClient,
   typesafeConfig,
   metaconfigCore,
   metaconfigDocs,
