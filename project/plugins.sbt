@@ -11,9 +11,26 @@ addSbtPlugin("com.lucidchart" % "sbt-scalafmt" % "1.14")
 // required for java9+
 val javaxActivation = "com.sun.activation" % "javax.activation" % "1.2.0"
 
-addSbtPlugin("ch.epfl.scala" % "sbt-bloop-build-shaded" % "1.0.0-SNAPSHOT")
+//addSbtPlugin("ch.epfl.scala" % "sbt-bloop-build-shaded" % "1.0.0-SNAPSHOT")
 updateOptions := updateOptions.value.withLatestSnapshots(false)
 
 libraryDependencies ++= List(
   javaxActivation
 )
+
+val `bloop-shaded-plugin` = project
+  .settings(
+    sbtPlugin := true,
+    exportJars := true,
+    scalaVersion := "2.12.9",
+    compileInputs in Compile in compile := {
+      val inputs = (compileInputs in Compile in compile).value
+      val classDir = (classDirectory in Compile).value
+      val shadingJar = baseDirectory.value.getParentFile.getParentFile.getParentFile / "project" / "project" / "target" / "sbt-bloop-build-shaded" / "target" / "scala-2.12" / "sbt-1.0" / "sbt-bloop-build-shaded-raw-1.0.0-SNAPSHOT-shading.jar"
+      IO.unzip(shadingJar, classDir)
+      IO.delete(classDir / "META-INF" / "MANIFEST.MF")
+      inputs
+    }
+  )
+
+dependsOn(`bloop-shaded-plugin`)
