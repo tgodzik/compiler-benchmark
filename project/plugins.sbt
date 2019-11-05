@@ -22,15 +22,7 @@ val `bloop-shaded-plugin` = project
   .settings(
     sbtPlugin := true,
     exportJars := true,
-    scalaVersion := "2.12.9",
-    compileInputs in Compile in compile := {
-      val inputs = (compileInputs in Compile in compile).value
-      val classDir = (classDirectory in Compile).value
-      val shadingJar = baseDirectory.value.getParentFile.getParentFile.getParentFile / "project" / "project" / "target" / "sbt-bloop-build-shaded" / "target" / "scala-2.12" / "sbt-1.0" / "sbt-bloop-build-shaded-raw-1.0.0-SNAPSHOT-shading.jar"
-      IO.unzip(shadingJar, classDir)
-      IO.delete(classDir / "META-INF" / "MANIFEST.MF")
-      inputs
-    }
+    libraryDependencies += "ch.epfl.scala" %% "sbt-bloop-build-shaded-naked" % "1.0.0-SNAPSHOT"
   )
 
 dependsOn(`bloop-shaded-plugin`)
