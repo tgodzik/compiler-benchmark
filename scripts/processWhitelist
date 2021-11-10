@@ -42,6 +42,7 @@ ksmd                      # merges identical memory pages (https://www.kernel.or
 md
 ksoftirqd                 # per-cpu process, handles interrupts when already handling an interrupt
 kswapd0                   # manages virtual memory
+kstrp
 kthreadd                  # root for creating kernel threads
 kthrotld                  # not sure
 kworker                   # kernel work (interrupts, timers, io, etc)
