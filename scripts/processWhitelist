@@ -22,6 +22,7 @@ ext4-rsv-conver           # not sure
 ipv6_addrconf             # ipv6, could probably be disabled
 irq/326-mei_me_            # an interrupt handler, it seems to stick around, no idea..
 irq/30-mei_me_
+irq/29-mei_me_
 irqbalance                # systemctl, stopped by benv. balance irq handlers across cpus
 i915/signal
 fsnotify_mark_
