@@ -50,6 +50,7 @@ lru-add-drain             # not sure
 migration                 # distributes workload across CPU cores
 mm_percpu_wq
 netns                     # handle network namespaces (logically copies of the network stack)
+networkd-dispat
 oom_reaper                # out of memory handler
 ps_ps_-e_-o_comm,args     # myself
 perf_
