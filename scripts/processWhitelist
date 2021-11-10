@@ -1,3 +1,4 @@
+accounts-daemon
 acpid                     # systemctl, stopped by benv
 acpi_thermal_pm           # not sure how it's started, not sure if it can/should be disabled
 agetty                    # systemctl, login console, not sure if we could stop it safely (ssh login still ok?)
