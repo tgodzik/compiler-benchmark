@@ -56,6 +56,7 @@ ps_ps_-e_-o_comm,args     # myself
 perf_
 rcu_bh                    # rcu is a thread synchronization mechanism, https://lwn.net/Articles/518953/
 rcu_sched                 #
+rcu_tasks_kthre_
 rsyslogd                  # systemctl, stopped by benv. syslog
 scsi_eh                   # scsi error handler
 scsi_tmf                  #
