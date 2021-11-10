@@ -17,6 +17,7 @@ deferwq
 dhclient                  # dhcp client, keeps running as long as the interface is configured using dhcp. not sure if it could be disabled temporarily
 dhcpd
 e1000e                    # linux intel driver
+edac-poller               # Error Detection and Correction) drivers in the kernel
 ext4-rsv-conver           # not sure
 ipv6_addrconf             # ipv6, could probably be disabled
 irq/326-mei_me_            # an interrupt handler, it seems to stick around, no idea..
