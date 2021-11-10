@@ -72,7 +72,7 @@ systemd-logind            # login service
 systemd-udevd             # udev Kernel Device Manager, handles hardware changes (usb plug in etc)
 ttm_swap                  # swap gpu memory
 tee                       # tee redirects output from benchmarking process to file
-unattended-upgrade-shutdown
+unattended-upgr_
 vmstat                    # virtual memory stats, not sure why this is running
 watchdog                  # detects problems, per cpu
 writeback                 # write to disk buffer
