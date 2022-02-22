@@ -2,7 +2,7 @@ name := "compiler-benchmark"
 
 version := "1.0-SNAPSHOT"
 
-def scala212 = "2.12.4"
+def scala212 = "2.12.15"
 scalaVersion in ThisBuild := scala212
 
 commands += Command.command("testAll") { s =>
