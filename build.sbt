@@ -1,10 +1,10 @@
 name := "compiler-benchmark"
-
+ 
 version := "1.0-SNAPSHOT"
-
+ 
 def scala212 = "2.12.15"
-scalaVersion in ThisBuild := scala212
-
+(ThisBuild / scalaVersion) := scala212
+ 
 commands += Command.command("testAll") { s =>
   "test:compile" ::
     "compilation/test" ::
@@ -12,9 +12,9 @@ commands += Command.command("testAll") { s =>
     "micro/jmh:run -w1 -f1" ::
     s
 }
-
+ 
 resolvers += "scala-integration" at "https://scala-ci.typesafe.com/artifactory/scala-integration/"
-
+ 
 // Convenient access to builds from PR validation
 resolvers ++= (
   if (scalaVersion.value.endsWith("-SNAPSHOT"))
@@ -24,7 +24,7 @@ resolvers ++= (
   else
     Nil
 )
-
+ 
 lazy val infrastructure = addJmh(project).settings(
   description := "Infrastrucuture to persist benchmark results annotated with metadata from Git",
   autoScalaLibrary := false,
@@ -40,7 +40,7 @@ lazy val infrastructure = addJmh(project).settings(
     "ch.qos.logback" % "logback-classic" % "1.2.1"
   )
 )
-
+ 
 lazy val compilation = addJmh(project).settings(
   // We should be able to switch this project to a broad range of Scala versions for comparative
   // benchmarking. As such, this project should only depend on the high level `MainClass` compiler API.
@@ -49,24 +49,24 @@ lazy val compilation = addJmh(project).settings(
     scalaOrganization.value % "scala-compiler" % scalaVersion.value
   },
   crossScalaVersions := List(scala212),
-  unmanagedSourceDirectories.in(Compile) += sourceDirectory.in(Compile).value / "scalac",
-  mainClass in (Jmh, run) := Some("scala.bench.ScalacBenchmarkRunner"),
+  (Compile / unmanagedSourceDirectories) += (Compile / sourceDirectory).value / "scalac",
+  (Jmh / run / mainClass) := Some("scala.bench.ScalacBenchmarkRunner"),
   libraryDependencies += "com.novocode" % "junit-interface" % "0.11" % Test,
-  testOptions in Test += Tests.Argument(TestFrameworks.JUnit),
-  fork in (Test, test) := true // jmh scoped tasks run with fork := true.
+  (Test / testOptions) += Tests.Argument(TestFrameworks.JUnit),
+  (Test / test / fork) := true // jmh scoped tasks run with fork := true.
 ).settings(addJavaOptions).dependsOn(infrastructure)
-
+ 
 lazy val micro = addJmh(project).settings(
   description := "Finer grained benchmarks of compiler internals",
   libraryDependencies += scalaOrganization.value % "scala-compiler" % scalaVersion.value
 ).settings(addJavaOptions).dependsOn(infrastructure)
-
+ 
 lazy val jvm = addJmh(project).settings(
   description := "Pure Java benchmarks for demonstrating performance anomalies independent from the Scala language/library",
   autoScalaLibrary := false,
   crossPaths := false
 ).settings(addJavaOptions).dependsOn(infrastructure)
-
+ 
 lazy val addJavaOptions = javaOptions ++= {
   def refOf(version: String) = {
     val HasSha = """.*(?:bin|pre)-([0-9a-f]{7,})(?:-.*)?""".r
@@ -82,10 +82,11 @@ lazy val addJavaOptions = javaOptions ++= {
     "-Dgit.localdir=."
   )
 }
-
+ 
 def addJmh(project: Project): Project = {
   // IntelliJ SBT project import doesn't like sbt-jmh's default setup, which results the prod and test
   // output paths overlapping. This is because sbt-jmh declares the `jmh` config as extending `test`, but
   // configures `classDirectory in Jmh := classDirectory in Compile`.
   project.enablePlugins(JmhPlugin).overrideConfigs(JmhPlugin.JmhKeys.Jmh.extend(Compile))
 }
+ 
