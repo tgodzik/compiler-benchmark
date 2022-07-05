@@ -11,7 +11,7 @@ addSbtPlugin("com.lucidchart" % "sbt-scalafmt" % "1.14")
 // required for java9+
 val javaxActivation = "com.sun.activation" % "javax.activation" % "1.2.0"
 
-//addSbtPlugin("ch.epfl.scala" % "sbt-bloop-build-shaded" % "1.0.0-SNAPSHOT")
+//addSbtPlugin("ch.epfl.scala" % "sbt-bloop-build" % "1.0.0-SNAPSHOT")
 updateOptions := updateOptions.value.withLatestSnapshots(false)
 
 libraryDependencies ++= List(
@@ -22,7 +22,7 @@ val `bloop-shaded-plugin` = project
   .settings(
     sbtPlugin := true,
     exportJars := true,
-    libraryDependencies += "ch.epfl.scala" %% "sbt-bloop-build-shaded-naked" % "1.0.0-SNAPSHOT"
+    libraryDependencies += "ch.epfl.scala" %% "sbt-bloop-build-naked" % "1.0.0-SNAPSHOT"
   )
 
 dependsOn(`bloop-shaded-plugin`)
